@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Execution Demo</title>
+  <style>
+    body {
+      background-color: #1e1e1e;
+      color: #ffffff;
+    }
+
+    #editor, #output, #error {
+      background-color: #000000;
+      color: #ffffff;
+      padding: 10px;
+      margin-top: 10px;
+      white-space: pre-wrap;
+      font-size: 16px;
+    }
+
+    #editor {
+      height: 300px;
+    }
+
+    #output, #error {
+      height: 150px;
+      overflow: auto; /* Add this line for scrollability */
+    }
+
+    select, button {
+      background-color: #333333;
+      color: #ffffff;
+      padding: 5px;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <h1>Code Execution Demo</h1>
+    
+    <label for="language">Select Language:</label>
+    <select id="language">
+      <option value="python">Python</option>
+      <option value="java">Java</option>
+      <option value="cpp">C++</option>
+      <option value="c">C</option>
+    </select>
+
+    <div id="editor"></div>
+    <button onclick="executeCode()">Run Code</button>
+
+    <!-- Empty boxes for output and error -->
+    <div>
+      <h2>Output:</h2>
+      <pre id="output"></pre>
+    </div>
+
+    <div>
+      <h2>Error:</h2>
+      <pre id="error"></pre>
+    </div>
+  </div>
+
+  <!-- Ace Editor -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+
+  <script>
+    var editor = ace.edit("editor");
+
+    function executeCode() {
+      const selectedLanguage = document.getElementById("language").value;
+      const theme = getThemeByLanguage(selectedLanguage);
+      editor.setTheme(`ace/theme/${theme}`);
+
+      const userCode = editor.getValue();
+      const requestData = {
+        language: selectedLanguage,
+        code: userCode
+      };
+
+      fetch('http://localhost:8080/execute', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      })
+      .then(response => response.json())
+      .then(apiResponse => {
+        document.getElementById("output").innerText = apiResponse.stdOut;
+        document.getElementById("error").innerText = apiResponse.stdErr;
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        document.getElementById("error").innerText = `Error: ${error.message}`;
+      });
+    }
+
+    function getThemeByLanguage(language) {
+      switch (language) {
+        case 'python':
+          return 'idle_fingers';
+        case 'java':
+          return 'eclipse';
+        case 'cpp':
+          return 'monokai';
+        case 'c':
+          return 'chrome';
+        default:
+          return 'chrome';
+      }
+    }
+
+    editor.setTheme(`ace/theme/${getThemeByLanguage('python')}`);
+  </script>
+</body>
+</html>

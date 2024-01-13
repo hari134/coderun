@@ -1,0 +1,46 @@
+version: '3'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - common
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - common
+
+  spring-boot-app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - rabbitmq
+      - docker-client
+      - redis
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - common
+    environment:
+      SPRING_REDIS_HOST: redis  # Use the service name as the host
+      SPRING_REDIS_PORT: 6379   # Use the default Redis port
+
+  docker-client: # This is the Docker service
+    image: docker:dind
+    privileged: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - common
+
+networks:
+  common:  # Define the network
+    driver: bridge  # Use the default bridge driver

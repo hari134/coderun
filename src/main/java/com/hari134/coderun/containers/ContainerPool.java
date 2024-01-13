@@ -1,6 +1,5 @@
 package com.hari134.coderun.containers;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -10,7 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.annotation.ApplicationScope;
 
 import com.github.dockerjava.api.DockerClient;
 import com.hari134.coderun.api.dto.container.ContainerResponse;
@@ -70,6 +68,7 @@ public class ContainerPool {
     @Async
     public CompletableFuture<ContainerResponse> executeAsync(String language, String code) throws InterruptedException {
         LanguageContainer container = take(language);
+        System.out.println("lang : "+ language+" code : "+code);
         try {
             // Execute the code using the obtained container
             ContainerResponse result = container.Execute(this.dockerClient,code);
