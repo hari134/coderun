@@ -11,17 +11,17 @@ import org.springframework.stereotype.Component;
 
 import com.hari134.coderun.api.dto.container.ContainerResponse;
 import com.hari134.coderun.api.dto.queue.RequestQueueMessage;
-import com.hari134.coderun.containers.ContainerPool;
+import com.hari134.coderun.containers.ContainerExecutor;
 
 @Component
 public class RequestConsumer {
-    private final ContainerPool containerPool;
+    private final ContainerExecutor containerExecutor;
     private RabbitTemplate rabbitTemplate;
     private ResponseProducer responseProducer;
 
     @Autowired
-    public RequestConsumer(RabbitTemplate rabbitTemplate,ContainerPool containerPool,ResponseProducer responseProducer) {
-        this.containerPool = containerPool;
+    public RequestConsumer(RabbitTemplate rabbitTemplate,ContainerExecutor containerExecutor,ResponseProducer responseProducer) {
+        this.containerExecutor = containerExecutor;
         this.responseProducer = responseProducer;
         this.rabbitTemplate = rabbitTemplate;
     }
@@ -39,7 +39,7 @@ public class RequestConsumer {
         // Execute the code asynchronously using the container pool
         CompletableFuture<ContainerResponse> executionResultFuture;
         try {
-            executionResultFuture = containerPool.executeAsync(language, code);
+            executionResultFuture = containerExecutor.executeAsync(language, code);
         } catch (Exception e) {
             // Handle the exception that occurred during executeAsync
             responseProducer.sendErrorToQueue(correlationId,e);

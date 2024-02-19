@@ -4,11 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-@EnableWebMvc
 public class GlobalCorsConfiguration implements WebMvcConfigurer {
 
     private final Logger logger = LoggerFactory.getLogger(GlobalCorsConfiguration.class);
@@ -26,4 +24,4 @@ public class GlobalCorsConfiguration implements WebMvcConfigurer {
 
         logger.info("CORS configuration applied successfully");
     }
-}
+}               

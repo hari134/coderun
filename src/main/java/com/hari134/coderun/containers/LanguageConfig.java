@@ -20,16 +20,18 @@ public class LanguageConfig {
     private String[] execCmd;
     private String containerPath;
     private static final Map<String,String> LANGUAGE_IMAGES = Map.ofEntries(
-            entry("python","python:latest")
+            entry("python","python:latest"),
+            entry("java","openjdk:17")
     );
     private static final Map<String,String[]> LANGUAGE_CMD = Map.ofEntries(
             entry("python", new String[]{"timeout","2","python", "main.py"}),
-            entry("java",new String[]{"timeout","2","javac" ,"Main.java" ,"&&" ,"java" ,"Main"})
+            // entry("java",new String[]{"javac", "Main.java","&&","java","Main"})
+            entry("java",new String[]{"bash", "-c", "javac Main.java && java Main"})
     );
 
     private static final Map<String,String> LANGUAGE_CONTAINER_PATHS = Map.ofEntries(
             entry("python","main.py"),
-            entry("java","main.java")
+            entry("java","Main.java")
     );
 
 
