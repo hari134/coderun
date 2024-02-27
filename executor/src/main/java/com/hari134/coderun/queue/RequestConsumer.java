@@ -1,6 +1,7 @@
 package com.hari134.coderun.queue;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Semaphore;
 
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -18,17 +19,28 @@ public class RequestConsumer {
     private final ContainerExecutor containerExecutor;
     private RabbitTemplate rabbitTemplate;
     private ResponseProducer responseProducer;
+    private final Semaphore semaphore;
 
     @Autowired
-    public RequestConsumer(RabbitTemplate rabbitTemplate,ContainerExecutor containerExecutor,ResponseProducer responseProducer) {
+    public RequestConsumer(RabbitTemplate rabbitTemplate, ContainerExecutor containerExecutor, ResponseProducer responseProducer) {
         this.containerExecutor = containerExecutor;
         this.responseProducer = responseProducer;
         this.rabbitTemplate = rabbitTemplate;
+        this.semaphore = new Semaphore(10); 
     }
 
-    @Async // Enable asynchronous execution
+    //@Async // Enable asynchronous execution
     @RabbitListener(queues = "request-queue")
     public void processRequest(Message requestMessage) {
+        try {
+            // Acquire a permit from the Semaphore, blocking if necessary until one is available
+            semaphore.acquire();
+        } catch (InterruptedException e) {
+            // Handle interrupted exception
+            Thread.currentThread().interrupt();
+            return;
+        }
+
         RequestQueueMessage queueMessage = (RequestQueueMessage) rabbitTemplate.getMessageConverter()
                 .fromMessage(requestMessage);
 
@@ -42,24 +54,28 @@ public class RequestConsumer {
             executionResultFuture = containerExecutor.executeAsync(language, code);
         } catch (Exception e) {
             // Handle the exception that occurred during executeAsync
-            responseProducer.sendErrorToQueue(correlationId,e);
+            responseProducer.sendErrorToQueue(correlationId, e);
+            semaphore.release(); // Release permit on error
             return;
         }
 
         executionResultFuture.thenAccept(result -> {
             try {
-                responseProducer.sendResponseToQueue(correlationId,result);
+                responseProducer.sendResponseToQueue(correlationId, result);
             } catch (Exception e) {
-                responseProducer.sendErrorToQueue(correlationId,e);
+                responseProducer.sendErrorToQueue(correlationId, e);
+            } finally {
+                semaphore.release(); // Release permit after execution
             }
         }).exceptionally(exception -> {
             try {
-                responseProducer.sendErrorToQueue(correlationId,exception);
+                responseProducer.sendErrorToQueue(correlationId, exception);
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                semaphore.release(); // Release permit after execution
             }
             return null;
         });
     }
-
 }
