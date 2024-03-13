@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import com.github.dockerjava.api.DockerClient;
-import com.hari134.coderun.api.dto.container.ContainerResponse;
+import com.hari134.coderun.dto.container.ContainerResponse;
 
 @Component
 public class ContainerExecutor{

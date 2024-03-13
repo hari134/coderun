@@ -2,16 +2,17 @@
 FROM ubuntu:latest
 
 # Install necessary packages
-RUN apt-get update && \
+RUN export DEBIAN_FRONTEND=noninteractive && \
+    apt-get update && \
     apt-get install -y \
-    libcap-dev \
-    asciidoc-base \
-    libsystemd-dev \
-    g++ \
-    gcc \
-    git \
-    make \
-    build-essential \
+    pkgconf -y \ 
+    libcap-dev -y \
+    libsystemd-dev -y \
+    g++ -y \
+    gcc -y \
+    git -y \
+    make -y \
+    build-essential -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Clone isolate repository
@@ -19,8 +20,7 @@ RUN git clone https://github.com/ioi/isolate.git /tmp/isolate
 
 # Build and install isolate
 RUN cd /tmp/isolate && \
-    make && \
     make install 
 
-# Start isolate-cg-keeper daemon
-CMD ["isolate-cg-keeper"]
+COPY scripts /scripts
+CMD tail -f /dev/null

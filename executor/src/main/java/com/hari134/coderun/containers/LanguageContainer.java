@@ -4,7 +4,7 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.*;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.core.command.ExecStartResultCallback;
-import com.hari134.coderun.api.dto.container.ContainerResponse;
+import com.hari134.coderun.dto.container.ContainerResponse;
 
 import java.io.ByteArrayOutputStream;
 

@@ -1,4 +1,4 @@
-package com.hari134.coderun.api.dto.api;
+package com.hari134.coderun.dto.api;
 
 public class UserRequest {
     private String language;

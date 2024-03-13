@@ -1,4 +1,4 @@
-package com.hari134.coderun.api.dto.queue;
+package com.hari134.coderun.dto.queue;
 
 import java.io.Serializable;
 

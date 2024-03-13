@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import com.hari134.coderun.api.dto.container.ContainerResponse;
-import com.hari134.coderun.api.dto.queue.RequestQueueMessage;
 import com.hari134.coderun.containers.ContainerExecutor;
+import com.hari134.coderun.dto.container.ContainerResponse;
+import com.hari134.coderun.dto.queue.RequestQueueMessage;
 
 @Component
 public class RequestConsumer {
