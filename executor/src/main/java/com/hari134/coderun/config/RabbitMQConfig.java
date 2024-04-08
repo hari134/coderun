@@ -22,11 +22,11 @@ public class RabbitMQConfig {
 
   @Bean
   public Queue userRequestQueue() {
-    return new Queue("request-queue", true); // Declare queue with automatic creation
+    return new Queue("request-queue", true);
   }
 
   @Bean
   public Queue userResponseQueue() {
-    return new Queue("response-queue", true); // Declare queue with automatic creation
+    return new Queue("response-queue", true);
   }
 }

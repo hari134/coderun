@@ -1,20 +1,29 @@
 #!/bin/bash
 
-# Check if the required box_id is provided
-if [ $# -ne 1 ]; then
-    echo "{\"error\": \"Usage: $0 <box_id>\"}" >&2
+# Check if the required box_id and filepath are provided
+if [ $# -ne 2 ]; then
+    echo "{\"error\": \"Usage: $0 <box_id> <file_path>\"}" >&2
     exit 1
 fi
 
-# Assign box_id to a variable
+# Assign box_id and file_path to variables
 box_id="$1"
+file_path="$2"
+time_limit=2
+memory_limit=256000
 
-# Read the code string from standard input
-code_string=$(</dev/stdin)
+# Check if the file exists
+if [ ! -f "$file_path" ]; then
+    echo "{\"error\": \"File not found\"}" >&2
+    exit 1
+fi
+
+# Read the code string from the file
+code_string=$(<"$file_path")
 
 # Check if the code string is empty
 if [ -z "$code_string" ]; then
-    echo "{\"error\": \"No code provided\"}" >&2
+    echo "{\"error\": \"File is empty\"}" >&2
     exit 1
 fi
 
