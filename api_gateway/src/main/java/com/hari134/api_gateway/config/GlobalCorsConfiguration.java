@@ -1,4 +1,4 @@
-package com.hari134.coderun.config;
+package com.hari134.api_gateway.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

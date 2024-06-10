@@ -1,4 +1,4 @@
-package com.hari134.coderun.api.controllers;
+package com.hari134.api_gateway.api.controllers;
 
 import java.util.UUID;
 
@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.hari134.coderun.api.dto.api.UserRequest;
-import com.hari134.coderun.api.dto.api.UserResponse;
-import com.hari134.coderun.api.util.DeferredResultManager;
-import com.hari134.coderun.queue.RequestProducer;;
+import com.hari134.api_gateway.api.util.DeferredResultManager;
+import com.hari134.api_gateway.dto.api.UserRequest;
+import com.hari134.api_gateway.dto.api.UserResponse;
+import com.hari134.api_gateway.service.queue.RequestProducer;;
 
 @RestController
 public class RequestController {

@@ -1,4 +1,4 @@
-package com.hari134.coderun;
+package com.hari134.api_gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

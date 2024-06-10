@@ -1,12 +1,12 @@
-package com.hari134.coderun.queue;
+package com.hari134.api_gateway.service.queue;
 
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.hari134.coderun.api.dto.api.UserRequest;
-import com.hari134.coderun.api.dto.queue.RequestQueueMessage;
+import com.hari134.api_gateway.dto.api.UserRequest;
+import com.hari134.api_gateway.dto.queue.RequestQueueMessage;
 
 @Component
 public class RequestProducer {

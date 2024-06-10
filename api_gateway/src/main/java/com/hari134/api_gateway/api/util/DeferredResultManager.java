@@ -1,10 +1,10 @@
-package com.hari134.coderun.api.util;
+package com.hari134.api_gateway.api.util;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.ApplicationScope;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import com.hari134.coderun.api.dto.api.UserResponse;
+import com.hari134.api_gateway.dto.api.UserResponse;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

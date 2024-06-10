@@ -1,4 +1,4 @@
-package com.hari134.coderun.api.dto.container;
+package com.hari134.api_gateway.dto.container;
 
 public class ContainerResponse {
     private String StdOut;
