@@ -66,3 +66,5 @@ if ! isolate --cleanup -b "$box_id"; then
 fi
 
 echo "{\"output\": \"$output\", \"error\": \"$error\", \"metadata\": \"$metadata\"}"
+
+# docker exec -it judger /scripts/judge/cpp.sh "/scripts/test.cpp" 1 128000 2

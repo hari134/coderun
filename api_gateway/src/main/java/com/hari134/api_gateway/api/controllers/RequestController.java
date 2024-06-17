@@ -13,16 +13,18 @@ import org.springframework.web.server.ResponseStatusException;
 import com.hari134.api_gateway.api.util.DeferredResultManager;
 import com.hari134.api_gateway.dto.api.UserRequest;
 import com.hari134.api_gateway.dto.api.UserResponse;
+import com.hari134.api_gateway.service.queue.QueueService;
 import com.hari134.api_gateway.service.queue.RequestProducer;;
 
 @RestController
 public class RequestController {
     private RequestProducer requestProducer;
     private DeferredResultManager deferredResultManager;
+    private QueueService queueService;
 
     @Autowired
-    public RequestController(RequestProducer requestProducer, DeferredResultManager deferredResultManager) {
-        this.requestProducer = requestProducer;
+    public RequestController(QueueService queueService, DeferredResultManager deferredResultManager) {
+        this.queueService = queueService;
         this.deferredResultManager = deferredResultManager;
     }
 
@@ -34,7 +36,7 @@ public class RequestController {
         DeferredResult<UserResponse> deferredResult = new DeferredResult<>();
         deferredResultManager.putDeferredResult(correlationId, deferredResult);
 
-        requestProducer.SendRequest(request, correlationId);
+        queueService.sendRequest(request, correlationId);
         // Set a timeout handler for the DeferredResult in case the response does not
         // arrive in time
         deferredResult.onTimeout(() -> {
