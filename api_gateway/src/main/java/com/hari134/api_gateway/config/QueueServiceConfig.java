@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
-import com.hari134.api_gateway.service.queue.QueueService;
+import com.hari134.api_gateway.service.QueueService;
 
 @Configuration
 public class QueueServiceConfig {

@@ -1,4 +1,4 @@
-package com.hari134.api_gateway.service.queue;
+package com.hari134.api_gateway.service;
 
 import com.hari134.api_gateway.dto.api.UserRequest;
 import com.hari134.api_gateway.dto.api.UserResponse;

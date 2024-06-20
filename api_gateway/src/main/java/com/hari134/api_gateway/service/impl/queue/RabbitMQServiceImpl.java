@@ -1,4 +1,4 @@
-package com.hari134.api_gateway.service.queue;
+package com.hari134.api_gateway.service.impl.queue;
 
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -11,14 +11,15 @@ import com.hari134.api_gateway.api.util.DeferredResultManager;
 import com.hari134.api_gateway.dto.api.UserRequest;
 import com.hari134.api_gateway.dto.api.UserResponse;
 import com.hari134.api_gateway.dto.queue.RequestQueueMessage;
+import com.hari134.api_gateway.service.QueueService;
 
 @Service
-public class RabbitMQService implements QueueService {
+public class RabbitMQServiceImpl implements QueueService {
     private final RabbitTemplate rabbitTemplate;
     private final DeferredResultManager deferredResultManager;
 
     @Autowired
-    public RabbitMQService(RabbitTemplate rabbitTemplate, DeferredResultManager deferredResultManager) {
+    public RabbitMQServiceImpl(RabbitTemplate rabbitTemplate, DeferredResultManager deferredResultManager) {
         this.rabbitTemplate = rabbitTemplate;
         this.deferredResultManager = deferredResultManager;
     }

@@ -13,12 +13,10 @@ import org.springframework.web.server.ResponseStatusException;
 import com.hari134.api_gateway.api.util.DeferredResultManager;
 import com.hari134.api_gateway.dto.api.UserRequest;
 import com.hari134.api_gateway.dto.api.UserResponse;
-import com.hari134.api_gateway.service.queue.QueueService;
-import com.hari134.api_gateway.service.queue.RequestProducer;;
+import com.hari134.api_gateway.service.QueueService;
 
 @RestController
 public class RequestController {
-    private RequestProducer requestProducer;
     private DeferredResultManager deferredResultManager;
     private QueueService queueService;
 
