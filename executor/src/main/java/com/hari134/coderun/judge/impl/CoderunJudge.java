@@ -12,7 +12,6 @@ import java.util.concurrent.CompletionException;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import com.github.dockerjava.api.DockerClient;
@@ -37,29 +36,40 @@ public class CoderunJudge extends AbstractIsolateDockerContainer implements Judg
     }
 
     private String startContainer() {
-        // Create Docker container from the pre-built image
-        CreateContainerResponse container = dockerClient.createContainerCmd("coderun-judge-container")
-                .withNetworkDisabled(true)
-                .withName("judge-container-" + UUID.randomUUID().toString())
-                .exec();
+        try {
+            // Create Docker container from the pre-built image
+            CreateContainerResponse container = dockerClient.createContainerCmd("coderun-judge-container")
+                    .withNetworkDisabled(true)
+                    .withPrivileged(true)
+                    .withName("judge-container-" + UUID.randomUUID().toString())
+                    .exec();
 
-        String containerId = container.getId();
+            String containerId = container.getId();
 
-        // Start the container
-        dockerClient.startContainerCmd(containerId).exec();
+            // Start the container
+            dockerClient.startContainerCmd(containerId).exec();
 
-        return containerId;
+            return containerId;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to start container", e);
+        }
     }
 
     public CompletableFuture<ContainerResponse> executeAsync(ExecutionConfig executionConfig) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                writeDataToFileInContainer(executionConfig.getFilePath(), executionConfig.getCode());
+                writeDataToFileInContainer(executionConfig.getCodeFilePath(), executionConfig.getCode());
+                if(executionConfig.getStdin() != ""){
+                    writeDataToFileInContainer(executionConfig.getStdinPath(), executionConfig.getStdin());
+                }
+                if(executionConfig.getExpectedOutput() != ""){
+                    writeDataToFileInContainer(executionConfig.getExpectedOutputFilePath(), executionConfig.getExpectedOutput());
+                }
                 // Create exec instance inside a running container
                 ExecCreateCmdResponse execCreateCmdResponse = dockerClient.execCreateCmd(containerId)
                         .withAttachStdout(true)
                         .withAttachStderr(true)
-                        .withCmd(executionConfig.getCommand())
+                        .withCmd("/bin/sh", "-c",executionConfig.getCommand())
                         .exec();
 
                 ByteArrayOutputStream stdout = new ByteArrayOutputStream();
@@ -80,25 +90,6 @@ public class CoderunJudge extends AbstractIsolateDockerContainer implements Judg
         });
     }
 
-    public ContainerResponse execute(ExecutionConfig executionConfig) throws InterruptedException {
-        writeDataToFileInContainer(executionConfig.getFilePath(), executionConfig.getCode());
-        // Create exec instance inside a running container
-        ExecCreateCmdResponse execCreateCmdResponse = dockerClient.execCreateCmd(containerId)
-                .withAttachStdout(true)
-                .withAttachStderr(true)
-                .withCmd(executionConfig.getCommand())
-                .exec();
-
-        ByteArrayOutputStream stdout = new ByteArrayOutputStream();
-        ByteArrayOutputStream stderr = new ByteArrayOutputStream();
-
-        // Start the execution of previously created exec instance
-        dockerClient.execStartCmd(execCreateCmdResponse.getId())
-                .exec(new ExecStartResultCallback(stdout, stderr))
-                .awaitCompletion();
-
-        return new ContainerResponse(stdout.toString(), stderr.toString());
-    }
 
     public void writeDataToFileInContainer(String filePath, String data) {
         byte[] tarData = new byte[0];
@@ -114,14 +105,12 @@ public class CoderunJudge extends AbstractIsolateDockerContainer implements Judg
             tarArchiveOutputStream.finish();
 
             tarData = byteArrayOutputStream.toByteArray();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         try (InputStream uploadStream = new ByteArrayInputStream(tarData)) {
-            dockerClient
-                    .copyArchiveToContainerCmd(containerId)
+            dockerClient.copyArchiveToContainerCmd(containerId)
                     .withTarInputStream(uploadStream)
                     .withRemotePath("/")
                     .exec();

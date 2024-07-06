@@ -75,12 +75,11 @@ public class RequestConsumer {
                 correlationId,
                 queueMessage.getLanguage(),
                 queueMessage.getCode(),
-                queueMessage.getPathToCppFile(),
                 queueMessage.getTimeLimit(),
                 queueMessage.getMemoryLimit(),
                 boxId,
-                queueMessage.getStdinPath(),
-                queueMessage.getExpectedOutputFile());
+                queueMessage.getStdin(),
+                queueMessage.getExpectedOutput());
     }
 
     private CompletableFuture<ContainerResponse> executeConfigAsync(ExecutionConfig executionConfig) {

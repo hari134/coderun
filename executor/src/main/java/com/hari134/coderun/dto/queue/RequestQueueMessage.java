@@ -5,12 +5,18 @@ import java.io.Serializable;
 public class RequestQueueMessage implements Serializable{
     private String language;
     private String code;
-    private String pathToCppFile;
     private String timeLimit;
     private String memoryLimit;
-    private String stdinPath;
-    private String expectedOutputFile;
+    private String stdin;
+    private String expectedOutput;
 
+    public String getStdin() {
+        return stdin;
+    }
+
+    public void setStdin(String stdin) {
+        this.stdin = stdin;
+    }
 
     public String getLanguage() {
         return language;
@@ -20,20 +26,20 @@ public class RequestQueueMessage implements Serializable{
         this.language = language;
     }
 
+    public String getExpectedOutput() {
+        return expectedOutput;
+    }
+
+    public void setExpectedOutput(String expectedOutput) {
+        this.expectedOutput = expectedOutput;
+    }
+
     public String getCode() {
         return code;
     }
 
     public void setCode(String code) {
         this.code = code;
-    }
-
-    public String getPathToCppFile() {
-        return pathToCppFile;
-    }
-
-    public void setPathToCppFile(String pathToCppFile) {
-        this.pathToCppFile = pathToCppFile;
     }
 
     public String getTimeLimit() {
@@ -50,22 +56,6 @@ public class RequestQueueMessage implements Serializable{
 
     public void setMemoryLimit(String memoryLimit) {
         this.memoryLimit = memoryLimit;
-    }
-
-    public String getStdinPath() {
-        return stdinPath;
-    }
-
-    public void setStdinPath(String stdinPath) {
-        this.stdinPath = stdinPath;
-    }
-
-    public String getExpectedOutputFile() {
-        return expectedOutputFile;
-    }
-
-    public void setExpectedOutputFile(String expectedOutputFile) {
-        this.expectedOutputFile = expectedOutputFile;
     }
 }
 

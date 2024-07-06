@@ -42,7 +42,7 @@ if [ -n "$stdin_path" ]; then
 fi
 
 # Execute the program within the sandbox
-if ! isolate -b $box_id -t $time_limit -m $memory_limit -M "/var/local/lib/isolate/$box_id/box/meta.txt" -o "output.txt" -r "error.txt" $stdin_option --run -- "/tmp/$box_id.out"; then
+if ! isolate -b $box_id -t $time_limit -m $memory_limit -M "/var/local/lib/isolate/$box_id/box/meta.txt" -o "output.txt" -r "error.txt" $stdin_option --run -- "/box/$box_id"; then
     echo "{\"error\": \"Execution failed\", \"output\": \"\", \"metadata\": {}}" >&2
     isolate --cleanup -b "$box_id"  # Cleanup before exit
     exit 1

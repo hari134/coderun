@@ -10,8 +10,16 @@ public class ExecutionConfig {
     private String correlationId;
     private Language language;
     private ExecCmd execCmd;
-    private String filePath;
+
+    private String codeFilePath;
     private String code;
+
+    private String expectedOutput;
+    private String expectedOutputFilePath;
+
+    private String stdin;
+    private String stdinPath;
+
     private boolean wait;
 
 
@@ -21,17 +29,63 @@ public class ExecutionConfig {
     static {
         // Populate the maps with valid languages and their execution commands and file extensions
         LANGUAGE_FILE_EXTENSION_MAP.put(Language.CPP, "cpp");
-        LANGUAGE_EXEC_CMD_MAP.put(Language.CPP, "./scripts/run/cpp.sh");
+        LANGUAGE_EXEC_CMD_MAP.put(Language.CPP, "scripts/run/cpp.sh");
     }
 
-    public ExecutionConfig(String correlationId,String language, String code, String pathToCppFile, String timeLimit, String memoryLimit, String boxId, String stdinPath, String expectedOutputFile) {
+    public ExecutionConfig(String correlationId,String language, String code, String timeLimit, String memoryLimit, String boxId, String stdin, String expectedOutput) {
         Language langEnum = convertToLanguageEnum(language);
         validateLanguage(langEnum);
         setLanguage(langEnum);
-        setFilePathFromLanguage(langEnum);
+        setCodeFilePathFromLanguage(langEnum);
         setCode(code);
+        setStdin(stdin);
+        setExpectedOutput(expectedOutput);
         setCorrelationId(correlationId);
-        setExecCmd(langEnum, pathToCppFile, timeLimit, memoryLimit, boxId, stdinPath, expectedOutputFile);
+        String codeFilePath = getCodeFilePath();
+        String expectedOutputFilePath = "";
+        String stdinFilePath = "";
+        if(stdin != ""){
+            setStdinFilePath();
+            stdinFilePath = getStdinPath();
+        }
+        if(expectedOutput != ""){
+            setExpectedOutput(expectedOutputFilePath);
+            expectedOutputFilePath = getExpectedOutputFilePath();
+        }
+
+        setExecCmd(langEnum, codeFilePath, timeLimit, memoryLimit, boxId, stdinFilePath, expectedOutput);
+    }
+
+    public String getStdinPath() {
+        return stdinPath;
+    }
+
+    public void setStdinPath(String stdinPath) {
+        this.stdinPath = stdinPath;
+    }
+
+    public String getStdin() {
+        return stdin;
+    }
+
+    public void setStdin(String stdin) {
+        this.stdin = stdin;
+    }
+
+    public String getExpectedOutput() {
+        return expectedOutput;
+    }
+
+    public void setExpectedOutput(String expectedOutput) {
+        this.expectedOutput = expectedOutput;
+    }
+
+    public String getExpectedOutputFilePath() {
+        return expectedOutputFilePath;
+    }
+
+    public void setExpectedOutputFilePath(String expectedOutputFilePath) {
+        this.expectedOutputFilePath = expectedOutputFilePath;
     }
 
     private Language convertToLanguageEnum(String language) {
@@ -76,19 +130,29 @@ public class ExecutionConfig {
         return execCmd.getCommand();
     }
 
-    private void setExecCmd(Language language, String pathToCppFile, String timeLimit, String memoryLimit, String boxId, String stdinPath, String expectedOutputFile) {
+    private void setExecCmd(Language language, String codeFilePath, String timeLimit, String memoryLimit, String boxId, String stdinFilePath, String expectedOutputFilePath) {
         String commandTemplate = LANGUAGE_EXEC_CMD_MAP.get(language);
-        ExecCmd execCmd = new ExecCmd(commandTemplate, pathToCppFile, timeLimit, memoryLimit, boxId, stdinPath, expectedOutputFile);
+        ExecCmd execCmd = new ExecCmd(commandTemplate, codeFilePath, timeLimit, memoryLimit, boxId, stdinFilePath, expectedOutputFilePath);
         this.execCmd = execCmd;
     }
 
-    public String getFilePath() {
-        return filePath;
+    public String getCodeFilePath() {
+        return codeFilePath;
     }
 
-    private void setFilePathFromLanguage(Language language) {
-        String filePath = UUID.randomUUID().toString() + "." + LANGUAGE_FILE_EXTENSION_MAP.get(language);
-        this.filePath = filePath;
+    private void setCodeFilePathFromLanguage(Language language) {
+        String codeFilePath = UUID.randomUUID().toString() + "." + LANGUAGE_FILE_EXTENSION_MAP.get(language);
+        this.codeFilePath = codeFilePath;
+    }
+
+    private void setStdinFilePath() {
+        String stdinFilePath = UUID.randomUUID().toString() + ".txt";
+        this.stdinPath = stdinFilePath;
+    }
+
+    private void setExpectedOutputFilePath() {
+        String expectedOutputFilePath = UUID.randomUUID().toString() + ".txt";
+        this.expectedOutputFilePath = expectedOutputFilePath;
     }
 
     public boolean isWait() {
@@ -103,13 +167,13 @@ public class ExecutionConfig {
 class ExecCmd {
     private String command;
 
-    public ExecCmd(String commandTemplate, String pathToCppFile, String timeLimit, String memoryLimit, String boxId, String stdinPath, String expectedOutputFile) {
-        this.command = buildCommand(commandTemplate, pathToCppFile, timeLimit, memoryLimit, boxId, stdinPath, expectedOutputFile);
+    public ExecCmd(String commandTemplate, String pathToCodeFile, String timeLimit, String memoryLimit, String boxId, String stdinPath, String expectedOutputFile) {
+        this.command = buildCommand(commandTemplate, pathToCodeFile, timeLimit, memoryLimit, boxId, stdinPath, expectedOutputFile);
     }
 
-    private String buildCommand(String commandTemplate, String pathToCppFile, String timeLimit, String memoryLimit, String boxId, String stdinPath, String expectedOutputFile) {
+    private String buildCommand(String commandTemplate, String pathToCodeFile, String timeLimit, String memoryLimit, String boxId, String stdinPath, String expectedOutputFile) {
         StringBuilder command = new StringBuilder(commandTemplate);
-        command.append(" ").append(pathToCppFile);
+        command.append(" ").append(pathToCodeFile);
         command.append(" ").append(timeLimit);
         command.append(" ").append(memoryLimit);
         command.append(" ").append(boxId);
