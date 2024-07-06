@@ -1,4 +1,4 @@
-package com.hari134.coderun.dto.container;
+package com.hari134.coderun.dto.judge;
 
 public class ContainerResponse {
     private String StdOut;
@@ -19,7 +19,7 @@ public class ContainerResponse {
     public void setStdErr(String StdErr) {
         this.StdErr = StdErr;
     }
-    
+
     public ContainerResponse(String StdOut,String StdErr){
         this.StdOut = StdOut;
         this.StdErr = StdErr;

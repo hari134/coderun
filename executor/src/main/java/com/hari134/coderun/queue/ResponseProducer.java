@@ -5,7 +5,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.hari134.coderun.dto.container.ContainerResponse;
+import com.hari134.coderun.dto.judge.ContainerResponse;
 import com.hari134.coderun.dto.queue.ResponseQueueMessage;
 
 @Component

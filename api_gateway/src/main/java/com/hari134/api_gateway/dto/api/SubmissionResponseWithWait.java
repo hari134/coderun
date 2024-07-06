@@ -1,6 +1,6 @@
-package com.hari134.coderun.dto.api;
+package com.hari134.api_gateway.dto.api;
 
-public class UserResponse {
+public class SubmissionResponseWithWait {
     private String StdOut;
     private String StdErr;
     private String Error;

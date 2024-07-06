@@ -3,21 +3,17 @@ package com.hari134.coderun.dto.queue;
 import java.io.Serializable;
 
 public class RequestQueueMessage implements Serializable{
-
-    private String correlationId;
-    private String code;
     private String language;
+    private String code;
+    private String pathToCppFile;
+    private String timeLimit;
+    private String memoryLimit;
+    private String stdinPath;
+    private String expectedOutputFile;
 
-    public String getCorrelationId() {
-        return this.correlationId;
-    }
-
-    public void setCorrelationId(String correlationId) {
-        this.correlationId = correlationId;
-    }
 
     public String getLanguage() {
-        return this.language;
+        return language;
     }
 
     public void setLanguage(String language) {
@@ -25,16 +21,51 @@ public class RequestQueueMessage implements Serializable{
     }
 
     public String getCode() {
-        return this.code;
+        return code;
     }
 
     public void setCode(String code) {
         this.code = code;
     }
 
-    public RequestQueueMessage(String correlationId,String language,String code){
-        this.correlationId = correlationId;
-        this.language = language;
-        this.code = code;
+    public String getPathToCppFile() {
+        return pathToCppFile;
+    }
+
+    public void setPathToCppFile(String pathToCppFile) {
+        this.pathToCppFile = pathToCppFile;
+    }
+
+    public String getTimeLimit() {
+        return timeLimit;
+    }
+
+    public void setTimeLimit(String timeLimit) {
+        this.timeLimit = timeLimit;
+    }
+
+    public String getMemoryLimit() {
+        return memoryLimit;
+    }
+
+    public void setMemoryLimit(String memoryLimit) {
+        this.memoryLimit = memoryLimit;
+    }
+
+    public String getStdinPath() {
+        return stdinPath;
+    }
+
+    public void setStdinPath(String stdinPath) {
+        this.stdinPath = stdinPath;
+    }
+
+    public String getExpectedOutputFile() {
+        return expectedOutputFile;
+    }
+
+    public void setExpectedOutputFile(String expectedOutputFile) {
+        this.expectedOutputFile = expectedOutputFile;
     }
 }
+

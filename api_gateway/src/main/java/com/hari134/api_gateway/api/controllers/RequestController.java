@@ -11,8 +11,8 @@ import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.hari134.api_gateway.api.util.DeferredResultManager;
-import com.hari134.api_gateway.dto.api.UserRequest;
-import com.hari134.api_gateway.dto.api.UserResponse;
+import com.hari134.api_gateway.dto.api.SubmissionRequest;
+import com.hari134.api_gateway.dto.api.SubmissionResponseWithWait;
 import com.hari134.api_gateway.service.QueueService;
 
 @RestController
@@ -27,11 +27,11 @@ public class RequestController {
     }
 
     @PostMapping("/execute")
-    public DeferredResult<UserResponse> sendRequest(@RequestBody UserRequest request) {
+    public DeferredResult<SubmissionResponseWithWait> sendRequest(@RequestBody SubmissionRequest request) {
         // Generate a unique correlation ID for the request
         String correlationId = UUID.randomUUID().toString();
 
-        DeferredResult<UserResponse> deferredResult = new DeferredResult<>();
+        DeferredResult<SubmissionResponseWithWait> deferredResult = new DeferredResult<>();
         deferredResultManager.putDeferredResult(correlationId, deferredResult);
 
         queueService.sendRequest(request, correlationId);
@@ -43,7 +43,7 @@ public class RequestController {
         });
 
         deferredResult.onCompletion(() -> {
-            if (deferredResult.getResult() != null && ((UserResponse) deferredResult.getResult()).getError() != null) {
+            if (deferredResult.getResult() != null && ((SubmissionResponseWithWait) deferredResult.getResult()).getError() != null) {
                 deferredResult.setErrorResult(
                         new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error"));
             }
