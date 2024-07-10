@@ -12,7 +12,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.hari134.api_gateway.api.util.DeferredResultManager;
 import com.hari134.api_gateway.dto.api.SubmissionRequest;
-import com.hari134.api_gateway.dto.api.SubmissionResponseWithWait;
+import com.hari134.api_gateway.dto.queue.SubmissionRequestQueueMessage;
+import com.hari134.api_gateway.dto.queue.SubmissionResponseQueueMessage;
 import com.hari134.api_gateway.service.QueueService;
 
 @RestController
@@ -27,14 +28,14 @@ public class RequestController {
     }
 
     @PostMapping("/execute")
-    public DeferredResult<SubmissionResponseWithWait> sendRequest(@RequestBody SubmissionRequest request) {
+    public DeferredResult<SubmissionResponseQueueMessage> sendRequest(@RequestBody SubmissionRequest request) {
         // Generate a unique correlation ID for the request
         String correlationId = UUID.randomUUID().toString();
-
-        DeferredResult<SubmissionResponseWithWait> deferredResult = new DeferredResult<>();
+        DeferredResult<SubmissionResponseQueueMessage> deferredResult = new DeferredResult<>();
         deferredResultManager.putDeferredResult(correlationId, deferredResult);
+        SubmissionRequestQueueMessage submissionRequestQueueMessage = SubmissionRequestQueueMessage.fromSubmissionRequest(request);
+        queueService.sendRequest(correlationId, submissionRequestQueueMessage);
 
-        queueService.sendRequest(request, correlationId);
         // Set a timeout handler for the DeferredResult in case the response does not
         // arrive in time
         deferredResult.onTimeout(() -> {
@@ -43,7 +44,7 @@ public class RequestController {
         });
 
         deferredResult.onCompletion(() -> {
-            if (deferredResult.getResult() != null && ((SubmissionResponseWithWait) deferredResult.getResult()).getError() != null) {
+            if (deferredResult.getResult() != null && ((SubmissionResponseQueueMessage) deferredResult.getResult()).getError() != null) {
                 deferredResult.setErrorResult(
                         new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error"));
             }

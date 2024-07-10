@@ -2,7 +2,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.hari134.coderun</groupId>
+  <groupId>com.hari134.api_gateway</groupId>
   <artifactId>gateway</artifactId>
   <packaging>jar</packaging>
   <properties>
@@ -128,6 +128,11 @@
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-maven-plugin</artifactId>
         <version>9.22.3</version>
+        <configuration>
+          <url> jdbc:postgresql://localhost:5432/coderun</url>
+          <user>postgres</user>
+          <password>password</password>
+        </configuration>
       </plugin>
     </plugins>
   </build>

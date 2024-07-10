@@ -1,4 +1,4 @@
-package com.hari134.api_gateway.config;
+package com.hari134.executor.config;
 
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;

@@ -1,10 +1,8 @@
-package com.hari134.api_gateway.dto.queue;
+package com.hari134.executor.dto.queue;
 
 import java.io.Serializable;
 
-import com.hari134.api_gateway.dto.api.SubmissionRequest;
-
-public class SubmissionRequestQueueMessage implements Serializable{
+public class SubmissionRequestQueueMessage implements Serializable {
     private String language;
     private String code;
     private String timeLimit;
@@ -14,12 +12,12 @@ public class SubmissionRequestQueueMessage implements Serializable{
     private Boolean wait;
     private String correlationId;
 
-    public void setCorrelationId(String correlationId) {
-        this.correlationId = correlationId;
-    }
-
     public String getCorrelationId() {
         return correlationId;
+    }
+
+    public void setCorrelationId(String correlationId) {
+        this.correlationId = correlationId;
     }
 
     public Boolean getWait() {
@@ -78,15 +76,18 @@ public class SubmissionRequestQueueMessage implements Serializable{
         this.memoryLimit = memoryLimit;
     }
 
-    public static SubmissionRequestQueueMessage fromSubmissionRequest(SubmissionRequest submissionRequest) {
-        SubmissionRequestQueueMessage submissionRequestQueueMessage = new SubmissionRequestQueueMessage();
-        submissionRequestQueueMessage.setCode(submissionRequest.getSourceCode());
-        submissionRequestQueueMessage.setExpectedOutput(submissionRequest.getExpectedOutput());
-        submissionRequestQueueMessage.setLanguage(submissionRequest.getLanguage());
-        submissionRequestQueueMessage.setMemoryLimit(submissionRequest.getMemoryLimit());
-        submissionRequestQueueMessage.setStdin(submissionRequest.getStdInput());
-        submissionRequestQueueMessage.setWait(submissionRequest.getWait());
-        submissionRequestQueueMessage.setTimeLimit(submissionRequest.getTimeLimit());
-        return submissionRequestQueueMessage;
+    @Override
+    public String toString() {
+        return "SubmissionRequestQueueMessage{" +
+                "language='" + language + '\'' +
+                ", code='" + code + '\'' +
+                ", timeLimit='" + timeLimit + '\'' +
+                ", memoryLimit='" + memoryLimit + '\'' +
+                ", stdin='" + stdin + '\'' +
+                ", expectedOutput='" + expectedOutput + '\'' +
+                ", wait=" + wait +
+                ", correlationId='" + correlationId + '\'' +
+                '}';
     }
+
 }
