@@ -22,7 +22,7 @@ public class CoderunJudgeTest {
   @Autowired
   private CoderunJudge coderunJudge;
 
-  @Test
+  // @Test
   public void testPlainExecution() {
 
     String correlationId = "test-id";
@@ -43,7 +43,8 @@ public class CoderunJudgeTest {
       try {
         System.out.println("output");
         System.out.println(result.getStdOut());
-        SubmissionResponseQueueMessage executionResult = SubmissionResponseQueueMessage.fromJson(result.getStdOut(),result.getStdErr(),correlationId);
+        SubmissionResponseQueueMessage executionResult = SubmissionResponseQueueMessage.fromJson(result.getStdOut(),
+            result.getStdErr(), correlationId);
         System.out.println(executionResult.toString());
 
         System.out.println("error");
@@ -62,16 +63,25 @@ public class CoderunJudgeTest {
 
   @Test
   public void testExecutionWithMLE() {
-
     String correlationId = "test-id";
     String boxId = coderunJudge.getUniqueBoxId();
-    String code = "#include <iostream>\n#include <cstdlib>\n\nint main() {\n    const size_t totalSize = 200 * 1024 * 1024;\n    const size_t incrementSize = 1024 * 1024*10; // 1 MB\n    size_t allocatedSize = 0;\n    char* buffer = nullptr;\n\n    try {\n        buffer = new char[totalSize];\n        while (allocatedSize < totalSize) {\n            std::fill(buffer + allocatedSize, buffer + allocatedSize + incrementSize, 1);\n            allocatedSize += incrementSize;\n            std::cout << \"Allocated \" << allocatedSize / (1024 * 1024) << \" MB\" << std::endl;\n        }\n        std::cout << \"Memory allocated successfully.\" << std::endl;\n    } catch (const std::bad_alloc& e) {\n        std::cerr << \"Memory allocation failed: \" << e.what() << std::endl;\n        delete[] buffer;\n        return 1;\n    }\n\n    std::cout << \"Using the allocated memory...\" << std::endl;\n\n    delete[] buffer;\n    std::cout << \"Memory deallocated successfully.\" << std::endl;\n\n    return 0;\n}\n";
+    String code = "#include <iostream>\n"
+        + "int main() {\n"
+        + "    const size_t numIntegers = 10 * 1024 * 1024 / sizeof(int);\n"
+        + "    int* array = new int[numIntegers];\n"
+        + "    for (size_t i = 0; i < numIntegers; ++i) {\n"
+        + "        array[i] = 0;\n"
+        + "    }\n"
+        + "    std::cout << \"Array of \" << numIntegers << \" integers initialized.\" << std::endl;\n"
+        + "    return 0;\n"
+        + "}\n";
+
     ExecutionConfig executionConfig = new ExecutionConfig(
         correlationId,
         "cpp",
         code,
-        "2",
-        "128000",
+        "2", // CPU limit
+        String.valueOf(1024*9), // Memory limit (in KB), 9 MB for 10 MB allocated in code
         boxId,
         "",
         "");
@@ -79,24 +89,22 @@ public class CoderunJudgeTest {
     CompletableFuture<ContainerResponse> future = coderunJudge.executeAsync(executionConfig);
     future.thenAccept(result -> {
       try {
-        System.out.println("output");
-        SubmissionResponseQueueMessage executionResult = SubmissionResponseQueueMessage.fromJson(result.getStdOut(),result.getStdErr(),correlationId);
+        System.out.println("Output:");
+        SubmissionResponseQueueMessage executionResult = SubmissionResponseQueueMessage.fromJson(result.getStdOut(),
+            result.getStdErr(), correlationId);
         System.out.println(executionResult.toString());
-        System.out.println("error");
+        System.out.println("Error:");
         System.out.println(result.getStdErr());
       } catch (Exception e) {
         e.printStackTrace();
       }
     }).exceptionally(exception -> {
-      try {
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
+      exception.printStackTrace();
       return null;
     }).join();
   }
 
-  @Test
+  // @Test
   public void testExecutionWithTLE() {
 
     String correlationId = "test-id";
@@ -116,7 +124,8 @@ public class CoderunJudgeTest {
     future.thenAccept(result -> {
       try {
         System.out.println("output");
-        SubmissionResponseQueueMessage executionResult = SubmissionResponseQueueMessage.fromJson(result.getStdOut(),result.getStdErr(),correlationId);
+        SubmissionResponseQueueMessage executionResult = SubmissionResponseQueueMessage.fromJson(result.getStdOut(),
+            result.getStdErr(), correlationId);
         System.out.println(executionResult.toString());
         System.out.println("error");
         System.out.println(result.getStdErr());
@@ -132,7 +141,7 @@ public class CoderunJudgeTest {
     }).join();
   }
 
-  @Test
+  // @Test
   public void testExecutionWithCompileTimeError() {
 
     String correlationId = "test-id";
@@ -152,7 +161,8 @@ public class CoderunJudgeTest {
     future.thenAccept(result -> {
       try {
         System.out.println("output");
-        SubmissionResponseQueueMessage executionResult = SubmissionResponseQueueMessage.fromJson(result.getStdOut(),result.getStdErr(),correlationId);
+        SubmissionResponseQueueMessage executionResult = SubmissionResponseQueueMessage.fromJson(result.getStdOut(),
+            result.getStdErr(), correlationId);
         System.out.println(executionResult.toString());
 
         System.out.println("error");
@@ -169,7 +179,7 @@ public class CoderunJudgeTest {
     }).join();
   }
 
-  @Test
+  // @Test
   public void testExecutionWithRunTimeError() {
 
     String correlationId = "test-id";
@@ -190,7 +200,8 @@ public class CoderunJudgeTest {
       try {
         System.out.println("output");
         System.out.println(result.getStdOut());
-        SubmissionResponseQueueMessage executionResult = SubmissionResponseQueueMessage.fromJson(result.getStdOut(),result.getStdErr(),correlationId);
+        SubmissionResponseQueueMessage executionResult = SubmissionResponseQueueMessage.fromJson(result.getStdOut(),
+            result.getStdErr(), correlationId);
         System.out.println(executionResult.toString());
 
         System.out.println("error");

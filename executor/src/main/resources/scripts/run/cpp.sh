@@ -22,7 +22,7 @@ if ! g++ "$path_to_cpp_file" -o "/tmp/$box_id.out"; then
 fi
 
 # Initialize isolate sandbox
-if ! isolate --init -b "$box_id" >/dev/null; then
+if ! isolate --cg --init -b "$box_id" >/dev/null; then
     echo "{\"status\": \"Failed to initialize isolate sandbox\", \"error\": \"\", \"output\": \"\", \"isTLE\": false, \"isMLE\": false, \"cpu_time\": \"\", \"memory_used\": \"\", \"output_match\": \"not applicable\"}"
     isolate --cleanup -b "$box_id"  # Cleanup before exit
     exit 1
@@ -31,7 +31,7 @@ fi
 # Copy the executable to the sandbox directory
 if ! cp "/tmp/$box_id.out" "/var/local/lib/isolate/$box_id/box/$box_id"; then
     echo "{\"status\": \"Failed to copy executable to sandbox\", \"error\": \"\", \"output\": \"\", \"isTLE\": false, \"isMLE\": false, \"cpu_time\": \"\", \"memory_used\": \"\", \"output_match\": \"not applicable\"}"
-    isolate --cleanup -b "$box_id"  # Cleanup before exit
+    isolate --cg --cleanup -b "$box_id"  # Cleanup before exit
     exit 1
 fi
 
@@ -42,12 +42,19 @@ if [ -n "$stdin_path" ]; then
 fi
 
 # Execute the program within the sandbox
-if ! isolate -b $box_id -t $time_limit -m $memory_limit -M "/var/local/lib/isolate/$box_id/box/meta.txt" -o "output.txt" --stderr "error.txt" $stdin_option --run -- "/box/$box_id"; then
+if ! isolate --cg -b $box_id -t $time_limit --cg-mem $memory_limit -M "/var/local/lib/isolate/$box_id/box/meta.txt" -o "output.txt" --stderr "error.txt" $stdin_option --run -- "/box/$box_id"; then
     metadata=$(cat "/var/local/lib/isolate/$box_id/box/meta.txt")
+    error_data=$(cat "/var/local/lib/isolate/$box_id/box/error.txt" 2>/dev/null || echo "")
+    error_data="${error_data:-""}"  # Ensure error is an empty string if null
+    output_data=$(cat "/var/local/lib/isolate/$box_id/box/output.txt" 2>/dev/null || echo "")
+    output_data="${output:-""}"  # Ensure error is an empty string if null
+
     isTLE=$(grep -q 'status:TO' <<< "$metadata" && echo "true" || echo "false")
     isMLE=$(grep -q 'status:RE' <<< "$metadata" && grep -q 'exitsig:9' <<< "$metadata" && echo "true" || echo "false")
+
     cpu_time=$(grep 'time:' <<< "$metadata" | cut -d':' -f2)
     memory_used=$(grep 'max-rss:' <<< "$metadata" | cut -d':' -f2)
+
     if [ "$isTLE" == "true" ]; then
         status="Time Limit Exceeded"
     elif [ "$isMLE" == "true" ]; then
@@ -55,10 +62,17 @@ if ! isolate -b $box_id -t $time_limit -m $memory_limit -M "/var/local/lib/isola
     else
         status="Runtime Error"
     fi
-    echo "{\"status\": \"$status\", \"error\": \"\", \"output\": \"\", \"isTLE\": $isTLE, \"isMLE\": $isMLE, \"cpu_time\": \"$cpu_time\", \"memory_used\": \"$memory_used\", \"output_match\": \"not applicable\"}"
-    isolate --cleanup -b "$box_id"  # Cleanup before exit
+
+    # Escape newlines and double quotes for JSON
+    metadata_json=$(echo "$metadata" | sed ':a;N;$!ba;s/\n/\\n/g' | sed 's/"/\\"/g')
+    error_data_json=$(echo "$error_data" | sed ':a;N;$!ba;s/\n/\\n/g' | sed 's/"/\\"/g')
+    output_data_json=$(echo "$output_data" | sed ':a;N;$!ba;s/\n/\\n/g' | sed 's/"/\\"/g')
+
+    echo "{\"status\": \"$status\", \"error\": \"$error_data_json\", \"output\": \"$output_data_json\", \"isTLE\": $isTLE, \"isMLE\": $isMLE, \"cpu_time\": \"$cpu_time\", \"memory_used\": \"$memory_used\", \"metadata\": \"$metadata_json\"}"
+    isolate --cg --cleanup -b "$box_id"  # Cleanup before exit
     exit 1
 fi
+
 
 # Read output and error files, ensure files are read safely
 output=$(cat "/var/local/lib/isolate/$box_id/box/output.txt" 2>/dev/null || echo "")
@@ -92,7 +106,7 @@ if [ -n "$expected_output_file" ]; then
 fi
 
 # Cleanup the sandbox before exiting successfully
-if ! isolate --cleanup -b "$box_id"; then
+if ! isolate --cg --cleanup -b "$box_id"; then
     echo "{\"status\": \"Failed to cleanup isolate sandbox\", \"error\": \"\", \"output\": \"$output\", \"isTLE\": $isTLE, \"isMLE\": $isMLE, \"cpu_time\": \"$cpu_time\", \"memory_used\": \"$memory_used\", \"output_match\": \"$output_match\"}"
     exit 1
 fi
