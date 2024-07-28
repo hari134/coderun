@@ -1,7 +1,5 @@
 package com.hari134.executor.dto.queue;
 
-
-
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
@@ -18,6 +16,9 @@ public class SubmissionResponseQueueMessage {
   private String output_match;
   private String status;
   private String correlationId;
+  private String wall_time;
+  private String exit_code;
+
   // Getters and Setters
 
   public String getCorrelationId() {
@@ -92,7 +93,23 @@ public class SubmissionResponseQueueMessage {
     this.output_match = output_match;
   }
 
-  public static SubmissionResponseQueueMessage fromJson(String jsonString,String stdErr,String correlationId) {
+  public String getWallTime() {
+    return wall_time;
+  }
+
+  public void setWallTime(String wall_time) {
+    this.wall_time = wall_time;
+  }
+
+  public String getExitCode() {
+    return exit_code;
+  }
+
+  public void setExitCode(String exit_code) {
+    this.exit_code = exit_code;
+  }
+
+  public static SubmissionResponseQueueMessage fromJson(String jsonString, String stdErr, String correlationId) {
     Gson gson = new Gson();
     SubmissionResponseQueueMessage submissionResponseQueueMessage = gson.fromJson(jsonString, SubmissionResponseQueueMessage.class);
     submissionResponseQueueMessage.setError(stdErr);
@@ -110,8 +127,10 @@ public class SubmissionResponseQueueMessage {
         ", cpu_time='" + cpu_time + '\'' +
         ", memory_used='" + memory_used + '\'' +
         ", output_match='" + output_match + '\'' +
-        ", status='" + status+ '\'' +
-        ", correlationId='" + correlationId+ '\'' +
+        ", status='" + status + '\'' +
+        ", correlationId='" + correlationId + '\'' +
+        ", wall_time='" + wall_time + '\'' +
+        ", exit_code='" + exit_code + '\'' +
         '}';
   }
 }

@@ -1,4 +1,4 @@
-package com.hari134.api_gateway.dto.api;
+package com.hari134.api_gateway.dto.api.requests;
 
 public class SubmissionRequest {
     private String language;

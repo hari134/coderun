@@ -6,23 +6,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.hari134.api_gateway.api.util.DeferredResultManager;
-import com.hari134.api_gateway.dto.api.SubmissionRequest;
+import com.hari134.api_gateway.dto.api.requests.SubmissionRequest;
 import com.hari134.api_gateway.dto.queue.SubmissionRequestQueueMessage;
 import com.hari134.api_gateway.dto.queue.SubmissionResponseQueueMessage;
 import com.hari134.api_gateway.service.QueueService;
 
 @RestController
-public class RequestController {
+@RequestMapping("/submissions")
+public class SubmissionController {
     private DeferredResultManager deferredResultManager;
     private QueueService queueService;
 
     @Autowired
-    public RequestController(QueueService queueService, DeferredResultManager deferredResultManager) {
+    public SubmissionController(QueueService queueService, DeferredResultManager deferredResultManager) {
         this.queueService = queueService;
         this.deferredResultManager = deferredResultManager;
     }

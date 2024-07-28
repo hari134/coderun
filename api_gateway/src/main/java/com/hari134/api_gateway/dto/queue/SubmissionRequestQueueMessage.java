@@ -2,7 +2,7 @@ package com.hari134.api_gateway.dto.queue;
 
 import java.io.Serializable;
 
-import com.hari134.api_gateway.dto.api.SubmissionRequest;
+import com.hari134.api_gateway.dto.api.requests.SubmissionRequest;
 
 public class SubmissionRequestQueueMessage implements Serializable{
     private String language;

@@ -81,7 +81,7 @@ public class CoderunJudgeTest {
         "cpp",
         code,
         "2", // CPU limit
-        String.valueOf(1024*9), // Memory limit (in KB), 9 MB for 10 MB allocated in code
+        String.valueOf(1024 * 9), // Memory limit (in KB), 9 MB for 10 MB allocated in code
         boxId,
         "",
         "");
@@ -95,6 +95,38 @@ public class CoderunJudgeTest {
         System.out.println(executionResult.toString());
         System.out.println("Error:");
         System.out.println(result.getStdErr());
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }).exceptionally(exception -> {
+      exception.printStackTrace();
+      return null;
+    }).join();
+  }
+
+  // @Test
+  public void testStreamingExecution() {
+    String correlationId = "test-id";
+    String boxId = coderunJudge.getUniqueBoxId();
+    String code = "\n#include <iostream>\nusing namespace std;\nint main() {\n for(int i=0;i<5000000;i++){\n cout<<i<<endl;\n }\n\n return 0;\n}";
+    ExecutionConfig executionConfig = new ExecutionConfig(
+        correlationId,
+        "cpp",
+        code,
+        "1",
+        "256000",
+        boxId,
+        "",
+        "");
+
+    CompletableFuture<ContainerResponse> future = coderunJudge.executeAsyncStreaming(executionConfig);
+    future.thenAccept(result -> {
+      try {
+        // System.out.println("Output:");
+        // System.out.println(result.getStdOut());
+
+        // System.out.println("Error:");
+        // System.out.println(result.getStdErr());
       } catch (Exception e) {
         e.printStackTrace();
       }
