@@ -28,6 +28,9 @@ public class CodeSubmission {
     private String sourceCode;
 
     @Column
+    private String correlationId;
+
+    @Column
     private String stdin;
 
     @Column
@@ -63,6 +66,14 @@ public class CodeSubmission {
     @Column
     private String message;
 
+    public String getCorrelationId() {
+      return correlationId;
+    }
+
+    public void setCorrelationId(String correlationId) {
+      this.correlationId= correlationId;
+    }
+    
     public Long getSubmissionId() {
       return submissionId;
     }

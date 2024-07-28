@@ -6,11 +6,20 @@ public class SubmissionRequestQueueMessage implements Serializable {
     private String language;
     private String code;
     private String timeLimit;
+    private String wallTimeLimit;
     private String memoryLimit;
     private String stdin;
     private String expectedOutput;
     private Boolean wait;
     private String correlationId;
+
+    public String getWallTimeLimit() {
+        return wallTimeLimit;
+    }
+
+    public void setWallTimeLimit(String wallTimeLimit) {
+        this.wallTimeLimit = wallTimeLimit;
+    }
 
     public String getCorrelationId() {
         return correlationId;

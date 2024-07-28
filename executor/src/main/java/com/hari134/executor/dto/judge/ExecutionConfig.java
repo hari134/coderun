@@ -136,7 +136,7 @@ public class ExecutionConfig {
             String memoryLimit, String boxId,
             String stdinFilePath, String expectedOutputFilePath) {
         String commandTemplate = LANGUAGE_EXEC_CMD_MAP.get(language);
-        ExecCmd execCmd = new ExecCmd(commandTemplate, codeFilePath, timeLimit, wallTimeLimit, memoryLimit, boxId,
+        ExecCmd execCmd = new ExecCmd(commandTemplate, codeFilePath, timeLimit, memoryLimit, boxId,wallTimeLimit,
                 stdinFilePath,
                 expectedOutputFilePath);
         this.execCmd = execCmd;
@@ -174,7 +174,7 @@ class ExecCmd {
     private String command;
 
     public ExecCmd(String commandTemplate, String pathToCodeFile, String timeLimit, String memoryLimit, String boxId,
-                   String wallTimeLimit, String stdinPath, String expectedOutputFile) {
+            String wallTimeLimit, String stdinPath, String expectedOutputFile) {
         this.command = new Builder(commandTemplate)
                 .pathToCodeFile(pathToCodeFile)
                 .timeLimit(timeLimit)

@@ -6,9 +6,17 @@ public class SubmissionRequest {
     private String stdInput;
     private String expectedOutput;
     private String timeLimit;
+    private String wallTimeLimit;
     private String memoryLimit;
     private Boolean wait = false;
 
+    public String getWallTimeLimit() {
+        return wallTimeLimit;
+    }
+
+    public void setWallTimeLimit(String wallTimeLimit) {
+        this.wallTimeLimit = wallTimeLimit;
+    }
     public Boolean getWait() {
         return wait;
     }

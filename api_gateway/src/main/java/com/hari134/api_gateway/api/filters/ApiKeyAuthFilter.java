@@ -27,9 +27,11 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String apiKey = request.getHeader("X-API-KEY");
         if (apiKey != null && apiKeyService.validateApiKey(apiKey)) {
+            logger.info(apiKey);
             User user = apiKeyService.getUserFromApiKey(apiKey);
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     user, null, Collections.emptyList());
+                    
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
         filterChain.doFilter(request, response);

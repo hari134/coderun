@@ -70,7 +70,6 @@ public class CoderunJudge extends AbstractIsolateDockerContainer implements Judg
                     writeDataToFileInContainer(executionConfig.getExpectedOutputFilePath(),
                             executionConfig.getExpectedOutput());
                 }
-                System.out.println(executionConfig.getCommand());
 
                 // Create exec instance inside a running container
                 ExecCreateCmdResponse execCreateCmdResponse = dockerClient.execCreateCmd(containerId)
@@ -116,7 +115,6 @@ public class CoderunJudge extends AbstractIsolateDockerContainer implements Judg
                     writeDataToFileInContainer(executionConfig.getExpectedOutputFilePath(),
                             executionConfig.getExpectedOutput());
                 }
-                System.out.println(executionConfig.getCommand());
                 // Create exec instance inside a running container
                 ExecCreateCmdResponse execCreateCmdResponse = dockerClient.execCreateCmd(containerId)
                         .withAttachStdout(true)

@@ -16,7 +16,6 @@ import com.hari134.api_gateway.repository.UserRepository;
 
 @Service
 public class ApiKeyService {
-
   @Autowired
   private ApiKeyRepository apiKeyRepository;
 
@@ -41,6 +40,15 @@ public class ApiKeyService {
   public boolean validateApiKey(String apiKey) {
     Optional<ApiKey> apiKeyOptional = apiKeyRepository.findByApiKey(apiKey);
     return apiKeyOptional.map(ApiKey::getIsValid).orElse(false);
+  }
+
+  public Long getApiKeyIdByApiKey(String apiKey) {
+    Optional<ApiKey> apiKeyOptional = apiKeyRepository.findByApiKey(apiKey);
+    if (apiKeyOptional.isPresent()) {
+      return apiKeyOptional.get().getApiKeyId();
+    } else {
+      throw new IllegalArgumentException("Invalid API key: " + apiKey);
+    }
   }
 
   public User getUserFromApiKey(String apiKey) {

@@ -12,6 +12,7 @@ public class SubmissionResponseQueueMessage {
   @SerializedName("isMLE")
   private boolean isMLE;
   private String cpu_time;
+  private String wall_cpu_time;
   private String memory_used;
   private String output_match;
   private String status;
@@ -20,6 +21,14 @@ public class SubmissionResponseQueueMessage {
   private String exit_code;
 
   // Getters and Setters
+
+  public String getWall_cpu_time() {
+    return wall_cpu_time;
+  }
+
+  public void setWall_cpu_time(String wall_cpu_time) {
+    this.wall_cpu_time = wall_cpu_time;
+  }
 
   public String getCorrelationId() {
     return correlationId;

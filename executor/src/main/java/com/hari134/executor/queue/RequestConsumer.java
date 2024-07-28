@@ -66,6 +66,7 @@ public class RequestConsumer {
                 queueMessage.getLanguage(),
                 queueMessage.getCode(),
                 queueMessage.getTimeLimit(),
+                queueMessage.getWallTimeLimit(),
                 queueMessage.getMemoryLimit(),
                 boxId,
                 queueMessage.getStdin(),

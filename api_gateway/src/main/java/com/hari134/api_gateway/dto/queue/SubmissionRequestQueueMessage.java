@@ -8,11 +8,20 @@ public class SubmissionRequestQueueMessage implements Serializable{
     private String language;
     private String code;
     private String timeLimit;
+    private String wallTimeLimit;
     private String memoryLimit;
     private String stdin;
     private String expectedOutput;
     private Boolean wait;
     private String correlationId;
+
+    public String getWallTimeLimit() {
+        return wallTimeLimit;
+    }
+
+    public void setWallTimeLimit(String wallTimeLimit) {
+        this.wallTimeLimit = wallTimeLimit;
+    }
 
     public void setCorrelationId(String correlationId) {
         this.correlationId = correlationId;
@@ -82,6 +91,7 @@ public class SubmissionRequestQueueMessage implements Serializable{
         SubmissionRequestQueueMessage submissionRequestQueueMessage = new SubmissionRequestQueueMessage();
         submissionRequestQueueMessage.setCode(submissionRequest.getSourceCode());
         submissionRequestQueueMessage.setExpectedOutput(submissionRequest.getExpectedOutput());
+        submissionRequestQueueMessage.setWallTimeLimit(submissionRequest.getWallTimeLimit());
         submissionRequestQueueMessage.setLanguage(submissionRequest.getLanguage());
         submissionRequestQueueMessage.setMemoryLimit(submissionRequest.getMemoryLimit());
         submissionRequestQueueMessage.setStdin(submissionRequest.getStdInput());
