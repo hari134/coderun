@@ -11,19 +11,23 @@ import org.springframework.stereotype.Component;
 import com.hari134.executor.dto.judge.ContainerResponse;
 import com.hari134.executor.dto.judge.ExecutionConfig;
 import com.hari134.executor.dto.queue.SubmissionRequestQueueMessage;
+import com.hari134.executor.dto.queue.SubmissionResponseQueueMessage;
 import com.hari134.executor.judge.impl.CoderunJudge;
+import com.hari134.executor.service.CodeSubmissionService;
 
 @Component
 public class RequestConsumer {
     private final CoderunJudge coderunJudge;
-    private ResponseProducer responseProducer;
+    private final ResponseProducer responseProducer;
     private final Semaphore semaphore;
+    private final CodeSubmissionService codeSubmissionService;
 
     @Autowired
-    public RequestConsumer(CoderunJudge coderunJudge, ResponseProducer responseProducer) {
+    public RequestConsumer(CoderunJudge coderunJudge, ResponseProducer responseProducer, CodeSubmissionService codeSubmissionService) {
         this.coderunJudge = coderunJudge;
         this.responseProducer = responseProducer;
         this.semaphore = new Semaphore(10);
+        this.codeSubmissionService = codeSubmissionService;
     }
 
     @RabbitListener(queues = "request-queue")
@@ -33,15 +37,22 @@ public class RequestConsumer {
         }
 
         try {
-
             if (queueMessage == null) {
                 semaphore.release();
                 return;
             }
+
             ExecutionConfig executionConfig = buildExecutionConfig(queueMessage.getCorrelationId(), queueMessage);
             CompletableFuture<ContainerResponse> executionResultFuture = coderunJudge.executeAsync(executionConfig);
 
-            handleExecutionResultAsync(executionResultFuture, executionConfig.getCorrelationId());
+            if (queueMessage.getWait()) {
+                // Handle synchronous response
+                ContainerResponse result = executionResultFuture.join();
+                handleExecutionResultSync(result, executionConfig.getCorrelationId());
+            } else {
+                // Handle asynchronous response
+                handleExecutionResultAsync(executionResultFuture, executionConfig.getCorrelationId());
+            }
         } catch (Exception e) {
             responseProducer.sendErrorToQueue(queueMessage.getCorrelationId(), e);
             semaphore.release();
@@ -58,7 +69,6 @@ public class RequestConsumer {
         }
     }
 
-
     private ExecutionConfig buildExecutionConfig(String correlationId, SubmissionRequestQueueMessage queueMessage) {
         String boxId = coderunJudge.getUniqueBoxId();
         return new ExecutionConfig(
@@ -73,10 +83,20 @@ public class RequestConsumer {
                 queueMessage.getExpectedOutput());
     }
 
+    private void handleExecutionResultSync(ContainerResponse result, String correlationId) {
+        try {
+            responseProducer.sendResponseToQueue(correlationId, result);
+        } catch (Exception e) {
+            responseProducer.sendErrorToQueue(correlationId, e);
+        } finally {
+            semaphore.release();
+        }
+    }
+
     private void handleExecutionResultAsync(CompletableFuture<ContainerResponse> future, String correlationId) {
         future.thenAccept(result -> {
             try {
-                responseProducer.sendResponseToQueue(correlationId, result);
+                saveAsyncSubmissionResult(correlationId, result);
             } catch (Exception e) {
                 responseProducer.sendErrorToQueue(correlationId, e);
             } finally {
@@ -94,7 +114,8 @@ public class RequestConsumer {
         });
     }
 
-    private String getCorrelationId(Message message) {
-        return message.getMessageProperties().getCorrelationId();
+    private void saveAsyncSubmissionResult(String correlationId, ContainerResponse result) {
+        SubmissionResponseQueueMessage queueMessage = SubmissionResponseQueueMessage.fromJson(result.getStdOut(),result.getStdErr(),correlationId);
+        codeSubmissionService.saveOnAsyncRequestCompletion(correlationId, queueMessage);
     }
 }

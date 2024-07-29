@@ -1,4 +1,5 @@
-package com.hari134.api_gateway.entity;
+package com.hari134.executor.entity;
+
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -207,4 +208,5 @@ public class CodeSubmission {
       this.message = message;
     }
 }
+
 

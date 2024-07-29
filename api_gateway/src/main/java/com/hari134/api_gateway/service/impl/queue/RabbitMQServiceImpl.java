@@ -4,6 +4,7 @@ package com.hari134.api_gateway.service.impl.queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.async.DeferredResult;
 
@@ -13,6 +14,7 @@ import com.hari134.api_gateway.dto.queue.SubmissionResponseQueueMessage;
 import com.hari134.api_gateway.service.QueueService;
 
 @Service
+@Qualifier("rabbitMQService")
 public class RabbitMQServiceImpl implements QueueService {
     private final RabbitTemplate rabbitTemplate;
     private final DeferredResultManager deferredResultManager;

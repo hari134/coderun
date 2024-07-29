@@ -8,7 +8,6 @@ public class SubmissionRequest {
     private String timeLimit;
     private String wallTimeLimit;
     private String memoryLimit;
-    private Boolean wait = false;
 
     public String getWallTimeLimit() {
         return wallTimeLimit;
@@ -16,13 +15,6 @@ public class SubmissionRequest {
 
     public void setWallTimeLimit(String wallTimeLimit) {
         this.wallTimeLimit = wallTimeLimit;
-    }
-    public Boolean getWait() {
-        return wait;
-    }
-
-    public void setWait(Boolean wait) {
-        this.wait = wait;
     }
 
     public String getLanguage() {
@@ -82,7 +74,6 @@ public class SubmissionRequest {
                 ", expectedOutput='" + expectedOutput + '\'' +
                 ", timeLimit='" + timeLimit + '\'' +
                 ", memoryLimit='" + memoryLimit + '\'' +
-                ", wait=" + wait +
                 '}';
     }
 }

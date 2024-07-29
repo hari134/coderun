@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class CodeSubmissionService {
@@ -24,11 +25,13 @@ public class CodeSubmissionService {
     @Autowired
     private ApiKeyRepository apiKeyRepository;
 
-    public void saveSubmissionResponse(SubmissionResponseQueueMessage response,String correlationId, Long userId, Long apiKeyId,
-                                       String sourceCode, String stdin, String expectedOutput,
-                                       String timeLimit, String memoryLimit, String cpuTimeLimit, String wallTimeLimit) {
+    public void saveSubmissionResponse(SubmissionResponseQueueMessage response, String correlationId, Long userId,
+            Long apiKeyId,
+            String sourceCode, String stdin, String expectedOutput,
+            String memoryLimit, String cpuTimeLimit, String wallTimeLimit) {
         User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
-        ApiKey apiKey = apiKeyRepository.findById(apiKeyId).orElseThrow(() -> new IllegalArgumentException("Invalid API key ID"));
+        ApiKey apiKey = apiKeyRepository.findById(apiKeyId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid API key ID"));
 
         CodeSubmission submission = new CodeSubmission();
         submission.setCorrelationId(correlationId);
@@ -38,7 +41,6 @@ public class CodeSubmissionService {
         submission.setStdin(stdin);
         submission.setStdout(response.getOutput());
         submission.setExpectedOutput(expectedOutput);
-        submission.setTimeLimit(Float.parseFloat(timeLimit));
         submission.setMemoryLimit(Float.parseFloat(memoryLimit));
         submission.setCpuTimeLimit(Float.parseFloat(cpuTimeLimit));
         submission.setWallTimeLimit(Float.parseFloat(wallTimeLimit));
@@ -51,5 +53,32 @@ public class CodeSubmissionService {
         submission.setSubmissionTime(LocalDateTime.now());
 
         codeSubmissionRepository.save(submission);
+    }
+
+    public void saveOnAsyncSubmissionRequestInitialization(String correlationId, Long userId, Long apiKeyId,
+            String sourceCode, String stdin, String expectedOutput,
+             String memoryLimit, String cpuTimeLimit, String wallTimeLimit) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
+        ApiKey apiKey = apiKeyRepository.findById(apiKeyId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid API key ID"));
+
+        CodeSubmission submission = new CodeSubmission();
+        submission.setCorrelationId(correlationId);
+        submission.setUser(user);
+        submission.setApiKey(apiKey);
+        submission.setSourceCode(sourceCode);
+        submission.setStdin(stdin);
+        submission.setExpectedOutput(expectedOutput);
+        submission.setMemoryLimit(Float.parseFloat(memoryLimit));
+        submission.setCpuTimeLimit(Float.parseFloat(cpuTimeLimit));
+        submission.setWallTimeLimit(Float.parseFloat(wallTimeLimit));
+        submission.setSubmissionComplete(false);
+        submission.setSubmissionTime(LocalDateTime.now());
+
+        codeSubmissionRepository.save(submission);
+    }
+
+    public Optional<CodeSubmission> findByCorrelationId(String correlationId){
+        return codeSubmissionRepository.findByCorrelationId(correlationId);
     }
 }

@@ -87,7 +87,7 @@ public class SubmissionRequestQueueMessage implements Serializable{
         this.memoryLimit = memoryLimit;
     }
 
-    public static SubmissionRequestQueueMessage fromSubmissionRequest(SubmissionRequest submissionRequest) {
+    public static SubmissionRequestQueueMessage fromSubmissionRequest(SubmissionRequest submissionRequest,Boolean wait) {
         SubmissionRequestQueueMessage submissionRequestQueueMessage = new SubmissionRequestQueueMessage();
         submissionRequestQueueMessage.setCode(submissionRequest.getSourceCode());
         submissionRequestQueueMessage.setExpectedOutput(submissionRequest.getExpectedOutput());
@@ -95,7 +95,7 @@ public class SubmissionRequestQueueMessage implements Serializable{
         submissionRequestQueueMessage.setLanguage(submissionRequest.getLanguage());
         submissionRequestQueueMessage.setMemoryLimit(submissionRequest.getMemoryLimit());
         submissionRequestQueueMessage.setStdin(submissionRequest.getStdInput());
-        submissionRequestQueueMessage.setWait(submissionRequest.getWait());
+        submissionRequestQueueMessage.setWait(wait);
         submissionRequestQueueMessage.setTimeLimit(submissionRequest.getTimeLimit());
         return submissionRequestQueueMessage;
     }

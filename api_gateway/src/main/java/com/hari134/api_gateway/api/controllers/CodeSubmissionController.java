@@ -2,7 +2,10 @@ package com.hari134.api_gateway.api.controllers;
 
 import com.hari134.api_gateway.dto.queue.SubmissionRequestQueueMessage;
 import com.hari134.api_gateway.dto.api.requests.SubmissionRequest;
+import com.hari134.api_gateway.dto.api.responses.ApiResponse;
+import com.hari134.api_gateway.dto.api.responses.SubmissionResponseWithoutWait;
 import com.hari134.api_gateway.dto.queue.SubmissionResponseQueueMessage;
+import com.hari134.api_gateway.entity.CodeSubmission;
 import com.hari134.api_gateway.entity.User;
 import com.hari134.api_gateway.service.impl.CodeSubmissionService;
 import com.hari134.api_gateway.service.QueueService;
@@ -18,12 +21,13 @@ import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.QueryParam;
+
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/submissions")
 public class CodeSubmissionController {
-
 
     @Autowired
     private QueueService queueService;
@@ -38,38 +42,73 @@ public class CodeSubmissionController {
     private ApiKeyService apiKeyService;
 
     @PostMapping("/execute")
-    public DeferredResult<SubmissionResponseQueueMessage> sendRequest(@RequestBody SubmissionRequest request, HttpServletRequest httpRequest) {
-        // Generate a unique correlation ID for the request
+    public Object sendRequest(@RequestBody SubmissionRequest request,
+            @RequestParam(required = false, defaultValue = "false") Boolean wait,
+            HttpServletRequest httpRequest) {
+
+        if (wait) {
+            return handleSyncRequest(request, httpRequest);
+        } else {
+            return handleAsyncRequest(request, httpRequest);
+        }
+    }
+
+    private SubmissionResponseWithoutWait handleAsyncRequest(SubmissionRequest request,
+            HttpServletRequest httpRequest) {
+        String correlationId = UUID.randomUUID().toString();
+        SecurityContext context = SecurityContextHolder.getContext();
+        User user = (User) context.getAuthentication().getPrincipal();
+        String apiKey = httpRequest.getHeader("X-API-KEY");
+        Long apiKeyId = apiKeyService.getApiKeyIdByApiKey(apiKey);
+
+        codeSubmissionService.saveOnAsyncSubmissionRequestInitialization(
+                correlationId,
+                user.getUserId(),
+                apiKeyId,
+                request.getSourceCode(),
+                request.getStdInput(),
+                request.getExpectedOutput(),
+                request.getMemoryLimit(),
+                request.getTimeLimit(),
+                request.getWallTimeLimit());
+        SubmissionRequestQueueMessage submissionRequestQueueMessage = SubmissionRequestQueueMessage
+                .fromSubmissionRequest(request, false);
+        queueService.sendRequest(correlationId, submissionRequestQueueMessage);
+
+        // Return the correlation ID immediately
+        return new SubmissionResponseWithoutWait(correlationId);
+    }
+
+    private DeferredResult<SubmissionResponseQueueMessage> handleSyncRequest(SubmissionRequest request,
+            HttpServletRequest httpRequest) {
         String correlationId = UUID.randomUUID().toString();
         DeferredResult<SubmissionResponseQueueMessage> deferredResult = new DeferredResult<>();
         deferredResultManager.putDeferredResult(correlationId, deferredResult);
-        SubmissionRequestQueueMessage submissionRequestQueueMessage = SubmissionRequestQueueMessage.fromSubmissionRequest(request);
+        SubmissionRequestQueueMessage submissionRequestQueueMessage = SubmissionRequestQueueMessage
+                .fromSubmissionRequest(request, true);
         queueService.sendRequest(correlationId, submissionRequestQueueMessage);
 
-        // Get the current security context
         SecurityContext context = SecurityContextHolder.getContext();
 
-        // Set a timeout handler for the DeferredResult in case the response does not arrive in time
         deferredResult.onTimeout(() -> {
             deferredResultManager.removeDeferredResult(correlationId);
             deferredResult.setErrorResult(new RuntimeException("Response not received in time."));
         });
 
-        // Wrap the onCompletion callback in a DelegatingSecurityContextRunnable
         deferredResult.onCompletion(new DelegatingSecurityContextRunnable(() -> {
             if (deferredResult.getResult() != null) {
                 try {
-                    SubmissionResponseQueueMessage response = (SubmissionResponseQueueMessage) deferredResult.getResult();
+                    SubmissionResponseQueueMessage response = (SubmissionResponseQueueMessage) deferredResult
+                            .getResult();
 
                     if (response.getError() != null && !response.getError().isEmpty()) {
-                        deferredResult.setErrorResult(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error"));
+                        deferredResult.setErrorResult(
+                                new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error"));
                     } else {
-                        // Retrieve the authenticated user and API key
                         User user = (User) context.getAuthentication().getPrincipal();
                         String apiKey = httpRequest.getHeader("X-API-KEY");
                         Long apiKeyId = apiKeyService.getApiKeyIdByApiKey(apiKey);
 
-                        // Save the response to the database
                         codeSubmissionService.saveSubmissionResponse(response,
                                 correlationId,
                                 user.getUserId(),
@@ -77,18 +116,39 @@ public class CodeSubmissionController {
                                 request.getSourceCode(),
                                 request.getStdInput(),
                                 request.getExpectedOutput(),
-                                request.getTimeLimit(),
                                 request.getMemoryLimit(),
                                 request.getTimeLimit(),
                                 request.getWallTimeLimit());
-
                     }
                 } catch (Exception e) {
-                    deferredResult.setErrorResult(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e));
+                    deferredResult.setErrorResult(
+                            new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e));
                 }
             }
         }, context));
 
         return deferredResult;
+    }
+
+    @GetMapping("/{correlationId}")
+    public Object getSubmissionStatus(@PathVariable String correlationId) {
+        CodeSubmission submission = codeSubmissionService.findByCorrelationId(correlationId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Submission not found"));
+
+        SubmissionResponseQueueMessage response = new SubmissionResponseQueueMessage();
+        response.setCorrelationId(correlationId);
+        response.setStatus(submission.getMessage());
+
+        if (submission.isSubmissionComplete()) {
+            response.setOutput(submission.getStdout());
+            response.setMemoryUsed(String.valueOf(submission.getMemory()));
+            response.setCpuTime(String.valueOf(submission.getCpuTime()));
+            response.setWallTime(String.valueOf(submission.getWallTime()));
+            response.setExitCode(String.valueOf(submission.getExitStatus()));
+            return new ApiResponse<>(true, "Submission completed", response);
+        } else {
+            response.setStatus("Processing");
+            return new ApiResponse<>(true, "Submission is still processing", response);
+        }
     }
 }

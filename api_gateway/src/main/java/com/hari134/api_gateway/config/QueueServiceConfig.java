@@ -1,6 +1,7 @@
 package com.hari134.api_gateway.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,13 +13,8 @@ import com.hari134.api_gateway.service.QueueService;
 public class QueueServiceConfig {
 
     @Autowired
+    @Qualifier("rabbitMQService")
     private QueueService rabbitMQService;
-
-    @Autowired
-    private QueueService kafkaService;
-
-    @Autowired
-    private QueueService sqsService;
 
     @Bean
     @Primary
@@ -26,10 +22,6 @@ public class QueueServiceConfig {
         switch (queueType.toLowerCase()) {
             case "rabbitmq":
                 return rabbitMQService;
-            case "kafka":
-                return kafkaService;
-            case "sqs":
-                return sqsService;
             default:
                 throw new IllegalArgumentException("Unknown queue type: " + queueType);
         }
