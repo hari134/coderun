@@ -10,7 +10,7 @@ CodeRun is a versatile tool that allows users to submit code snippets in various
 - <strong><span style="color:pink;">Multi-Language Support : </span></strong>Execute code in a wide range of programming languages.
 - <strong><span style="color:maroon;">Concurrent Execution:</strong> Process multiple code submissions simultaneously for optimal performance.
 - <strong><span style="color:yellow;">Real-Time Results:</strong>  Get instant feedback on code execution, including output and errors.
-- <strong><span style="color:green;">Caching:</strong>  Improved performance and speed through caching using <strong><em>Redis</em></strong>.
+- <strong><span style="color:green;">Microservice Archtiecture:</strong> Separation on concerns of executor and api gateway. Also makes horizontal scaling easy.
 - <strong><span style="color:violet;">Easy Integration :</strong>  Simple API endpoints make integration into applications and services seamless.
 
 ## Usage
@@ -40,6 +40,9 @@ CodeRun is a versatile tool that allows users to submit code snippets in various
 - Java
 - C++
 
+### Demo
+
+Demo link - http://54.226.233.162:8080/index.html
 ## Installation and Setup
 1. Clone this repository:
 
@@ -77,5 +80,3 @@ git checkout -b feature-new-feature
 This project is licensed under the MIT License.
 
 By Hari Vishwanath
-
-Project Demo(Link to be added)

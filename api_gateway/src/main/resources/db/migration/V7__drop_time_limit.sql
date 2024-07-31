@@ -1,0 +1,1 @@
+ALTER TABLE code_submissions DROP COLUMN time_limit;

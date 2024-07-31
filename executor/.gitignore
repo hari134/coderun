@@ -1,0 +1,8 @@
+.idea/
+.classpath
+.project
+.settings/
+target/
+.vscode/
+*.attach_pid*
+src/main/resources/application.properties

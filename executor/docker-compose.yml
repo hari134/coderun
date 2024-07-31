@@ -2,23 +2,14 @@ version: '3'
 services:
   spring-boot-app:
     build: .
-    ports:
-      - "8080:8080"
     depends_on:
       - docker-client
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - common
 
   docker-client: # This is the Docker service
     image: docker:dind
     privileged: true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - common
 
-networks:
-  common:  # Define the network
-    driver: bridge  # Use the default bridge driver
