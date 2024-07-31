@@ -87,6 +87,7 @@ public class RequestConsumer {
         try {
             responseProducer.sendResponseToQueue(correlationId, result);
         } catch (Exception e) {
+            System.out.println(e);
             responseProducer.sendErrorToQueue(correlationId, e);
         } finally {
             semaphore.release();

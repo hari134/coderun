@@ -5,9 +5,9 @@ public class SubmissionRequest {
     private String sourceCode;
     private String stdInput;
     private String expectedOutput;
-    private String timeLimit;
-    private String wallTimeLimit;
-    private String memoryLimit;
+    private String timeLimit="5";
+    private String wallTimeLimit="10";
+    private String memoryLimit="256000";
 
     public String getWallTimeLimit() {
         return wallTimeLimit;

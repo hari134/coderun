@@ -22,7 +22,7 @@ public class CoderunJudgeTest {
   @Autowired
   private CoderunJudge coderunJudge;
 
-  // @Test
+  @Test
   public void testPlainExecution() {
 
     String correlationId = "test-id";
@@ -58,6 +58,49 @@ public class CoderunJudgeTest {
       } catch (Exception e) {
         e.printStackTrace();
       }
+      return null;
+    }).join();
+  }
+
+  @Test
+  public void testExecutionWithStdin() {
+    String correlationId = "test-id-stdin";
+    String boxId = coderunJudge.getUniqueBoxId();
+    String code = "#include <iostream>\n"
+        + "int main() {\n"
+        + "    int a, b;\n"
+        + "    std::cin >> a >> b;\n"
+        + "    std::cout << \"Sum: \" << (a + b) << std::endl;\n"
+        + "    return 0;\n"
+        + "}\n";
+
+    String input = "3 5"; // Stdin input
+
+    ExecutionConfig executionConfig = new ExecutionConfig(
+        correlationId,
+        "cpp",
+        code,
+        "2", // CPU limit
+        "3",
+        String.valueOf(1024 * 9), // Memory limit (in KB)
+        boxId,
+        input,
+        "");
+
+    CompletableFuture<ContainerResponse> future = coderunJudge.executeAsync(executionConfig);
+    future.thenAccept(result -> {
+      try {
+        System.out.println("Output:");
+        SubmissionResponseQueueMessage executionResult = SubmissionResponseQueueMessage.fromJson(result.getStdOut(),
+            result.getStdErr(), correlationId);
+        System.out.println(executionResult.toString());
+        System.out.println("Error:");
+        System.out.println(result.getStdErr());
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }).exceptionally(exception -> {
+      exception.printStackTrace();
       return null;
     }).join();
   }
@@ -106,40 +149,7 @@ public class CoderunJudgeTest {
     }).join();
   }
 
-  // @Test
-  public void testStreamingExecution() {
-    String correlationId = "test-id";
-    String boxId = coderunJudge.getUniqueBoxId();
-    String code = "\n#include <iostream>\nusing namespace std;\nint main() {\n for(int i=0;i<5000000;i++){\n cout<<i<<endl;\n }\n\n return 0;\n}";
-    ExecutionConfig executionConfig = new ExecutionConfig(
-        correlationId,
-        "cpp",
-        code,
-        "1",
-        "3",
-        "256000",
-        boxId,
-        "",
-        "");
-
-    CompletableFuture<ContainerResponse> future = coderunJudge.executeAsyncStreaming(executionConfig);
-    future.thenAccept(result -> {
-      try {
-        // System.out.println("Output:");
-        // System.out.println(result.getStdOut());
-
-        // System.out.println("Error:");
-        // System.out.println(result.getStdErr());
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-    }).exceptionally(exception -> {
-      exception.printStackTrace();
-      return null;
-    }).join();
-  }
-
-  // @Test
+  @Test
   public void testExecutionWithTLE() {
 
     String correlationId = "test-id";
@@ -177,7 +187,7 @@ public class CoderunJudgeTest {
     }).join();
   }
 
-  // @Test
+  @Test
   public void testExecutionWithCompileTimeError() {
 
     String correlationId = "test-id";
@@ -216,7 +226,7 @@ public class CoderunJudgeTest {
     }).join();
   }
 
-  // @Test
+  @Test
   public void testExecutionWithRunTimeError() {
 
     String correlationId = "test-id";

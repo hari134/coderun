@@ -23,7 +23,7 @@ public class ResponseProducer {
     }
 
     public void sendErrorToQueue(String correlationId, Throwable exception) {
-        System.out.println("error queue");
+        System.out.println(exception.toString());
         // SubmissionResponseQueueMessage queueMessage = SubmissionResponseQueueMessage(correlationId, exception.toString());
         // publishResponseToQueue(correlationId, queueMessage);
     }

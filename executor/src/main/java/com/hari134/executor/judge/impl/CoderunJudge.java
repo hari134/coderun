@@ -59,50 +59,6 @@ public class CoderunJudge extends AbstractIsolateDockerContainer implements Judg
         }
     }
 
-    public CompletableFuture<ContainerResponse> executeAsyncStreaming(ExecutionConfig executionConfig) {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                writeDataToFileInContainer(executionConfig.getCodeFilePath(), executionConfig.getCode());
-                if (!executionConfig.getStdin().isEmpty()) {
-                    writeDataToFileInContainer(executionConfig.getStdinPath(), executionConfig.getStdin());
-                }
-                if (!executionConfig.getExpectedOutput().isEmpty()) {
-                    writeDataToFileInContainer(executionConfig.getExpectedOutputFilePath(),
-                            executionConfig.getExpectedOutput());
-                }
-
-                // Create exec instance inside a running container
-                ExecCreateCmdResponse execCreateCmdResponse = dockerClient.execCreateCmd(containerId)
-                        .withAttachStdout(true)
-                        .withAttachStderr(true)
-                        .withCmd("/bin/sh", "-c", executionConfig.getCommand())
-                        .exec();
-
-                // Custom callback to handle streaming output
-                ExecStartResultCallback streamingCallback = new ExecStartResultCallback() {
-                    @Override
-                    public void onNext(Frame frame) {
-                        String output = new String(frame.getPayload(), StandardCharsets.UTF_8);
-                        System.out.println("-----------------");
-                        System.out.print(output); // or handle it as per your requirements
-                        super.onNext(frame);
-                    }
-                };
-
-                // Start the execution of previously created exec instance
-                dockerClient.execStartCmd(execCreateCmdResponse.getId())
-                        .exec(streamingCallback)
-                        .awaitCompletion();
-
-                return new ContainerResponse(streamingCallback.toString(), "");
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new CompletionException(e);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to execute in container", e);
-            }
-        });
-    }
 
     public CompletableFuture<ContainerResponse> executeAsync(ExecutionConfig executionConfig) {
         return CompletableFuture.supplyAsync(() -> {
@@ -135,6 +91,7 @@ public class CoderunJudge extends AbstractIsolateDockerContainer implements Judg
                 Thread.currentThread().interrupt();
                 throw new CompletionException(e);
             } catch (Exception e) {
+                System.out.println(e);
                 throw new RuntimeException("Failed to execute in container", e);
             }
         });

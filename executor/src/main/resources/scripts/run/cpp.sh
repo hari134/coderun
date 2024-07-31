@@ -30,10 +30,14 @@ if ! cp "/tmp/$box_id.out" "/var/local/lib/isolate/$box_id/box/$box_id"; then
     exit 1
 fi
 
-# Set up the stdin redirection if a stdin path is provided
 stdin_option=""
 if [ -n "$stdin_path" ]; then
-    stdin_option="-i $stdin_path"
+    if ! cp "$stdin_path" "/var/local/lib/isolate/$box_id/box/stdin.txt"; then
+        echo "{\"status\": \"Failed to copy stdin file to sandbox\", \"error\": \"\", \"output\": \"\", \"isTLE\": false, \"isMLE\": false, \"cpu_time\": \"\", \"memory_used\": \"\", \"output_match\": \"not applicable\", \"wall_time\": \"\", \"exit_code\": \"\"}"
+        isolate --cg --cleanup -b "$box_id"  # Cleanup before exit
+        exit 1
+    fi
+    stdin_option="-i /box/stdin.txt"
 fi
 
 # Execute the program within the sandbox
