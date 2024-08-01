@@ -39,8 +39,8 @@ public class SecurityConfig {
                 .csrf().disable()
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeRequests()
-                .antMatchers("/", "/index.html", "/static/**", "/login","/register","api-key","demo", "/users/login", "/users/register", "/**/*.js",
-                        "/**/*.css", "/**/*.html")
+                .antMatchers("/", "/index.html", "/static/**", "/login", "/users/login", "/users/register", "/**/*.js",
+                        "/**/*.css", "/**/*.html","/demo")
                 .permitAll()
                 .anyRequest().authenticated()
                 .and()
