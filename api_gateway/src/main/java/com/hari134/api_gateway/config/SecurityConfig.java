@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeRequests()
                 .antMatchers("/", "/index.html", "/static/**", "/login", "/users/login", "/users/register", "/**/*.js",
-                        "/**/*.css", "/**/*.html","/demo")
+                        "/**/*.css", "/**/*.html","/demo","/register")
                 .permitAll()
                 .anyRequest().authenticated()
                 .and()
