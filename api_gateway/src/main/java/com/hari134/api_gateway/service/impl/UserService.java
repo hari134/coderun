@@ -27,11 +27,18 @@ public class UserService {
 
     @Transactional
     public User registerUser(UserRegistrationRequest registrationDto) {
+        // Check if the email already exists
+        if (emailAuthRepository.findByEmail(registrationDto.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email already in use");
+        }
+
+        // Proceed with user creation if the email is not already in use
         User user = new User();
         user.setName(registrationDto.getName());
         user.setCreatedAt(LocalDateTime.now());
         user = userRepository.save(user);
 
+        // Create and save EmailAuth entry
         EmailAuth emailAuth = new EmailAuth();
         emailAuth.setUser(user);
         emailAuth.setEmail(registrationDto.getEmail());

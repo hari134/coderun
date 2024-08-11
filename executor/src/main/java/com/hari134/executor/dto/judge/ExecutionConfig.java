@@ -28,7 +28,11 @@ public class ExecutionConfig {
 
     static {
         LANGUAGE_FILE_EXTENSION_MAP.put(Language.CPP, "cpp");
-        LANGUAGE_EXEC_CMD_MAP.put(Language.CPP, "scripts/run/cpp.sh");
+        LANGUAGE_FILE_EXTENSION_MAP.put(Language.C, "c");
+        LANGUAGE_FILE_EXTENSION_MAP.put(Language.PYTHON, "python");
+        LANGUAGE_EXEC_CMD_MAP.put(Language.CPP, "bash scripts/run/cpp.sh");
+        LANGUAGE_EXEC_CMD_MAP.put(Language.C, "bash scripts/run/c.sh");
+        LANGUAGE_EXEC_CMD_MAP.put(Language.PYTHON, "bash scripts/run/python.sh");
     }
 
     public ExecutionConfig(String correlationId, String language, String code, String timeLimit, String wallTimeLimit,

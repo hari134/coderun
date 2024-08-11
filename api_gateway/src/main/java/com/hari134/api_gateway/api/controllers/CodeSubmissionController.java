@@ -21,7 +21,6 @@ import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.QueryParam;
 
 import java.util.UUID;
 

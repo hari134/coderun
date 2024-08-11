@@ -2,6 +2,7 @@ package com.hari134.executor.enums;
 
 public enum Language {
    CPP,
+   C,
    JAVA,
    PYTHON;
 

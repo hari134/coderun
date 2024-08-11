@@ -18,6 +18,9 @@ public class ResponseProducer {
     }
 
     public void sendResponseToQueue(String correlationId, ContainerResponse result) {
+        System.out.println(correlationId);
+        System.out.println(result.getStdOut());
+        System.out.println(result.getStdErr());
         SubmissionResponseQueueMessage queueMessage = SubmissionResponseQueueMessage.fromJson(result.getStdOut(),result.getStdErr(),correlationId);
         publishResponseToQueue(correlationId, queueMessage);
     }

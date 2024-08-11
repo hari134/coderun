@@ -3,7 +3,6 @@ package com.hari134.executor.queue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
 
-import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

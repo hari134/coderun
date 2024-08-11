@@ -1,13 +1,14 @@
 package com.hari134.api_gateway.dto.api.requests;
 
+
 public class SubmissionRequest {
     private String language;
     private String sourceCode;
     private String stdInput;
     private String expectedOutput;
-    private String timeLimit="5";
-    private String wallTimeLimit="10";
-    private String memoryLimit="256000";
+    private String timeLimit = "5";
+    private String wallTimeLimit = "10";
+    private String memoryLimit = "256000";
 
     public String getWallTimeLimit() {
         return wallTimeLimit;

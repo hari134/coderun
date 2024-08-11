@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -20,6 +21,7 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.ExecCreateCmdResponse;
 import com.github.dockerjava.api.model.Frame;
+import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.core.command.ExecStartResultCallback;
 import com.hari134.executor.dto.judge.ContainerResponse;
 import com.hari134.executor.dto.judge.ExecutionConfig;
@@ -40,8 +42,19 @@ public class CoderunJudge extends AbstractIsolateDockerContainer implements Judg
 
     private String startContainer() {
         try {
+            List<Image> images = dockerClient.listImagesCmd()
+                    .withImageNameFilter("coderhari/coderun-judge-container")
+                    .exec();
+            boolean imageExists = images != null && !images.isEmpty();
+
+            // Pull image if not available
+            if (!imageExists) {
+                dockerClient.pullImageCmd("coderhari/coderun-judge-container")
+                        .start()
+                        .awaitCompletion();
+            }
             // Create Docker container from the pre-built image
-            CreateContainerResponse container = dockerClient.createContainerCmd("coderun-judge-container")
+            CreateContainerResponse container = dockerClient.createContainerCmd("coderhari/coderun-judge-container")
                     .withNetworkDisabled(true)
                     .withPrivileged(true)
                     .withCgroupParent(containerId)
@@ -58,7 +71,6 @@ public class CoderunJudge extends AbstractIsolateDockerContainer implements Judg
             throw new RuntimeException("Failed to start container", e);
         }
     }
-
 
     public CompletableFuture<ContainerResponse> executeAsync(ExecutionConfig executionConfig) {
         return CompletableFuture.supplyAsync(() -> {
